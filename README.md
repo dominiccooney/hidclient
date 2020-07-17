@@ -1,3 +1,4 @@
+fork of [xenogenesi/hidclient](https://github.com/xenogenesi/hidclient)
 # hidclient
 fork of Anselm Martin Hoffmeister's [hidclient](http://anselm.hoffmeister.be/computer/hidclient/index.html.en)
 
