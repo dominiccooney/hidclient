@@ -1,5 +1,5 @@
 FORK OF [xenogenesi/hidclient](https://github.com/xenogenesi/hidclient)
-This fork contains small tweaks to make hidclient work on modern systems.
+This fork contains small tweaks to make hidclient work on modern systems. Don't use this yet.
 # hidclient
 fork of Anselm Martin Hoffmeister's [hidclient](http://anselm.hoffmeister.be/computer/hidclient/index.html.en)
 
