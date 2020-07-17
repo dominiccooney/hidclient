@@ -1,4 +1,5 @@
-fork of [xenogenesi/hidclient](https://github.com/xenogenesi/hidclient)
+FORK OF [xenogenesi/hidclient](https://github.com/xenogenesi/hidclient)
+This fork contains small tweaks to make hidclient work on modern systems.
 # hidclient
 fork of Anselm Martin Hoffmeister's [hidclient](http://anselm.hoffmeister.be/computer/hidclient/index.html.en)
 
@@ -52,6 +53,7 @@ Start hidclient with
     sudo ./hidclient -e4 -x
     
 where 4 is the number of your mouse. Hidclient will wait for bluetooth connections. The mouse should stop working on the local PC, so it will not interfere with your normal computer usage while it is connected to another device.
+Note: If there is error `xinput: command not found`, install xorg-xinput package.
 
 Use `openvt` along with hidclient so that keystrokes and mouse events captured will have no negative impact on the local machine (except Ctrl+Alt+[Fn/Entf/Pause]).
 Run
