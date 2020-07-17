@@ -36,6 +36,16 @@ Now run
     sudo ./hidclient -l
     
 to list the available input devices. If you have for example two usb mice and want to export only one (while working locally on the other), select the ID number from the first column.
+
+If using bluez >= 5.0:
+1. edit `/etc/systemd/system/dbus-org.bluez.service` and add --compat to end of `ExecStart` entry.
+2. Restart Bluetooth:
+```
+sudo systemctl daemon-reload
+sudo systemctl restart bluetooth
+```
+3. Change sdp mode: `sudo chmod 777 /var/run/sdp`
+
 Start hidclient with
 
     sudo ./hidclient -e4 -x
