@@ -137,18 +137,18 @@
 #define	HIDINFO_DESC	"Keyboard"
 
 // These numbers must also be used in the HID descriptor binary file
-#define	REPORTID_MOUSE	1
-#define	REPORTID_KEYBD	2
+#define	REPORTID_MOUSE	2
+#define	REPORTID_KEYBD	1
 
 // Fixed SDP record, corresponding to data structures below. Explanation
 // is in separate text file. No reason to change this if you do not want
 // to fiddle with the data sent over the BT connection as well.
-#define SDPRECORD	"\x05\x01\x09\x02\xA1\x01\x85\x01\x09\x01\xA1\x00" \
+#define SDPRECORD	"\x05\x01\x09\x02\xA1\x01\x85\x02\x09\x01\xA1\x00" \
 			"\x05\x09\x19\x01\x29\x03\x15\x00\x25\x01\x75\x01" \
 			"\x95\x03\x81\x02\x75\x05\x95\x01\x81\x01\x05\x01" \
 			"\x09\x30\x09\x31\x09\x38\x15\x81\x25\x7F\x75\x08" \
 			"\x95\x02\x81\x06\xC0\xC0\x05\x01\x09\x06\xA1\x01" \
-			"\x85\x02\xA1\x00\x05\x07\x19\xE0\x29\xE7\x15\x00" \
+			"\x85\x01\xA1\x00\x05\x07\x19\xE0\x29\xE7\x15\x00" \
 			"\x25\x01\x75\x01\x95\x08\x81\x02\x95\x08\x75\x08" \
 			"\x15\x00\x25\x65\x05\x07\x19\x00\x29\x65\x81\x00" \
 			"\xC0\xC0"
@@ -189,6 +189,18 @@ struct hidrep_keyb_t
 	unsigned char	key[8]; // Currently pressed keys, max 8 at once
 } __attribute((packed));
 
+void dump_mouse_report(const struct hidrep_mouse_t* event) {
+  fprintf(stderr, "code=%02x,rep_id=%02x,button=%02x,x=%d,y=%d,z=%d\n",
+	  event->btcode, event->rep_id, event->button, event->axis_x,
+	  event->axis_y, event->axis_z);
+}
+
+void dump_keyboard_report(const struct hidrep_keyb_t* event) {
+  fprintf(stderr, "code=%02x,rep_id=%02x,modify=%02x,key=%llx\n",
+	  event->btcode, event->rep_id, event->modify,
+	  *(unsigned long long*)event->key);
+}
+
 //***************** Global variables
 char		prepareshutdown	 = 0;	// Set if shutdown was requested
 int		eventdevs[MAXEVDEVS];	// file descriptors
@@ -198,7 +210,7 @@ char		modifierkeys	 = 0;	// and for shift/ctrl/alt... status
 char		pressedkey[8]	 = { 0, 0, 0, 0,  0, 0, 0, 0 };
 char		connectionok	 = 0;
 uint32_t	sdphandle	 = 0;	// To be used to "unregister" on exit
-int		debugevents      = 0;	// bitmask for debugging event data
+int		debugevents      = 1;	// bitmask for debugging event data
 
 //***************** Implementation
 /* 
@@ -758,7 +770,7 @@ int	parse_events ( fd_set * efds, int sockdesc )
 			//  chars expected != got: data invalid, drop it!
 			continue;
 		}
-		fprintf(stderr,"   read(%d)from(%d)   ", j, i );
+		fprintf(stderr,"read(%d)from(%d)\n", j, i );
 		if ( debugevents & 0x1 )
 			fprintf ( stdout, "EVENT{%04X %04X %08X}\n", inevent->type,
 			  inevent->code, inevent->value );
@@ -789,6 +801,7 @@ int	parse_events ( fd_set * efds, int sockdesc )
 				evmouse->axis_z = 0;
 				if ( ! connectionok )
 					break;
+				dump_mouse_report(evmouse);
 				j = send ( sockdesc, evmouse,
 					sizeof(struct hidrep_mouse_t),
 					MSG_NOSIGNAL );
@@ -808,6 +821,7 @@ int	parse_events ( fd_set * efds, int sockdesc )
 					evkeyb->rep_id=REPORTID_KEYBD;
 					memset ( evkeyb->key, 0, 8 );
 					evkeyb->modify = 0;
+					dump_keyboard_report(evkeyb);
 					j = send ( sockdesc, evkeyb,
 					  sizeof(struct hidrep_keyb_t),
 					  MSG_NOSIGNAL );
@@ -847,6 +861,7 @@ int	parse_events ( fd_set * efds, int sockdesc )
 					modifierkeys |= u;
 				}
 				evkeyb->modify = modifierkeys;
+				dump_keyboard_report(evkeyb);
 				j = send ( sockdesc, evkeyb,
 					sizeof(struct hidrep_keyb_t),
 					MSG_NOSIGNAL );
@@ -996,6 +1011,7 @@ int	parse_events ( fd_set * efds, int sockdesc )
 				memcpy ( evkeyb->key, pressedkey, 8 );
 				evkeyb->modify = modifierkeys;
 				if ( ! connectionok ) break;
+				dump_keyboard_report(evkeyb);
 				j = send ( sockdesc, evkeyb,
 					sizeof(struct hidrep_keyb_t),
 					MSG_NOSIGNAL );
@@ -1032,6 +1048,7 @@ int	parse_events ( fd_set * efds, int sockdesc )
 					( inevent->code >= ABS_Z ?
 					  inevent->value : 0 );
 				if ( ! connectionok ) break;
+				dump_mouse_report(evmouse);
 				j = send ( sockdesc, evmouse,
 					sizeof(struct hidrep_mouse_t),
 					MSG_NOSIGNAL );

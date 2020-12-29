@@ -46,6 +46,22 @@ If using bluez >= 5.0:
 sudo systemctl daemon-reload
 sudo systemctl restart bluetooth
 ```
+
+Pairing:
+
+```
+pi@raspberrypi:~ $ sudo bluetoothctl
+Agent registered
+[bluetooth]# discoverable on
+Changing discoverable on succeeded
+[bluetooth]# devices
+...
+Device 2C:26:17:69:4C:7A Oculus Quest 2
+...
+[bluetooth]# trust 2c:26:17:69:4c:7a
+Changing 2C:26:17:69:4C:7A trust succeeded
+```
+
 3. Change sdp mode: `sudo chmod 777 /var/run/sdp`
 
 Start hidclient with
